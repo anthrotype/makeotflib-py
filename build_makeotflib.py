@@ -1,10 +1,12 @@
 import cffi
 import os
+import sys
+import sysconfig
+import shutil
+import errno
 
 
 CURR_DIR = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-with open(os.path.join(CURR_DIR, "_makeotflib.c"), 'r') as f:
-    source = f.read()
 
 AFDKO = os.path.join(CURR_DIR, 'afdko')
 
@@ -14,11 +16,30 @@ MAKEOTF_ROOT = os.path.join(AFDKO, 'FDK', 'Tools', 'Programs', 'makeotf')
 MAKEOTF_LIB = os.path.join(MAKEOTF_ROOT, 'makeotf_lib')
 MAKEOTF_SOURCE = os.path.join(MAKEOTF_ROOT, 'source')
 
+BUILD_TEMP = os.path.join(
+    CURR_DIR, "build", "temp.{platform}-{version[0]}.{version[1]}".format(
+        platform=sysconfig.get_platform(),
+        version=sys.version_info))
+
+
+def mkdir_p(path):
+    try:
+        os.makedirs(path)
+    except OSError as exc:
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            raise
+
+
 ffi = cffi.FFI()
 
 ffi.cdef("""
-int run(void);
+int main(int argc, char *argv[]);
 """)
+
+with open(os.path.join(MAKEOTF_SOURCE, "main.c"), 'r') as f:
+    source = f.read()
 
 ffi.set_source(
     '_makeotflib_cffi',
@@ -31,7 +52,6 @@ ffi.set_source(
         os.path.join(MAKEOTF_SOURCE, "fcdb.c"),
         os.path.join(MAKEOTF_SOURCE, "file.c"),
         os.path.join(MAKEOTF_SOURCE, "mac", "mac.c"),
-        os.path.join(MAKEOTF_SOURCE, "main.c"),
     ],
     include_dirs=[
         os.path.join(MAKEOTF_SOURCE, "include_files"),
@@ -40,15 +60,25 @@ ffi.set_source(
         os.path.join(PUBLIC_LIB, "api"),
     ],
     extra_objects=[
-        os.path.join(CURR_DIR, 'lib', "ctutil.a"),
-        os.path.join(CURR_DIR, 'lib', "dynarr.a"),
-        os.path.join(CURR_DIR, 'lib', "hotconv.a"),
-        os.path.join(CURR_DIR, 'lib', "pstoken.a"),
-        os.path.join(CURR_DIR, 'lib', "typecomp.a"),
-        os.path.join(CURR_DIR, 'lib', "cffread.a"),
+        os.path.join(BUILD_TEMP, "libctutil.a"),
+        os.path.join(BUILD_TEMP, "libdynarr.a"),
+        os.path.join(BUILD_TEMP, "libhotconv.a"),
+        os.path.join(BUILD_TEMP, "libpstoken.a"),
+        os.path.join(BUILD_TEMP, "libtypecomp.a"),
+        os.path.join(BUILD_TEMP, "libcffread.a"),
     ],
 )
 
 
 if __name__ == '__main__':
-    ffi.compile()
+    # compile extension module to build/temp-* folder
+    mkdir_p(BUILD_TEMP)
+    ffi.compile(BUILD_TEMP)
+
+    # move compiled module inside package dir
+    ext_file = '_makeotflib_cffi' + sysconfig.get_config_var('SO')
+    dest = os.path.join(CURR_DIR, 'makeotflib', ext_file)
+    if os.path.exists(ext_file):
+        if os.path.exists(dest):
+            os.remove(dest)
+        shutil.move(ext_file, dest)
