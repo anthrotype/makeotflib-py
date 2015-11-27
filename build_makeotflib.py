@@ -73,12 +73,10 @@ ffi.set_source(
 if __name__ == '__main__':
     # compile extension module to build/temp-* folder
     mkdir_p(BUILD_TEMP)
-    ffi.compile(BUILD_TEMP)
+    ext_path = ffi.compile(BUILD_TEMP)
 
-    # move compiled module inside package dir
-    ext_file = '_makeotflib_cffi' + sysconfig.get_config_var('SO')
-    dest = os.path.join(CURR_DIR, 'makeotflib', ext_file)
-    if os.path.exists(ext_file):
-        if os.path.exists(dest):
-            os.remove(dest)
-        shutil.move(ext_file, dest)
+    # copy compiled module inside package dir
+    dest = os.path.join(CURR_DIR, 'makeotflib', os.path.basename(ext_path))
+    if os.path.exists(dest):
+        os.remove(dest)
+    shutil.copy(ext_path, dest)
