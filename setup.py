@@ -1,8 +1,10 @@
 from setuptools import setup, Extension
 from distutils.command.build_ext import build_ext
+from distutils.command.build_clib import build_clib
 import os
 from os.path import join as pjoin
 from glob import glob
+from distutils import log
 
 
 CURR_DIR = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
@@ -13,6 +15,47 @@ PUBLIC_LIB = pjoin('afdko', 'FDK', 'Tools', 'Programs', 'public', 'lib')
 MAKEOTF_ROOT = pjoin('afdko', 'FDK', 'Tools', 'Programs', 'makeotf')
 MAKEOTF_LIB = pjoin(MAKEOTF_ROOT, 'makeotf_lib')
 MAKEOTF_SOURCE = pjoin(MAKEOTF_ROOT, 'source')
+
+
+class custom_build_clib(build_clib):
+    """ Custom build_clib command which allows to pass a list of 'extra_args'
+    when compiling C libraries.
+    """
+
+    def build_libraries(self, libraries):
+        for (lib_name, build_info) in libraries:
+            sources = build_info.get('sources')
+            if sources is None or not isinstance(sources, (list, tuple)):
+                raise DistutilsSetupError(
+                       "in 'libraries' option (library '%s'), "
+                       "'sources' must be present and must be "
+                       "a list of source filenames" % lib_name)
+            sources = list(sources)
+
+            log.info("building '%s' library", lib_name)
+
+            # First, compile the source code to object files in the library
+            # directory.  (This should probably change to putting object
+            # files in a temporary build directory.)
+            macros = build_info.get('macros')
+            include_dirs = build_info.get('include_dirs')
+            extra_args = build_info.get('extra_args')
+            # prune extra arguments if starting with "/" unless compiler is 'msvc'
+            if extra_args and self.compiler.compiler_type != "msvc":
+                extra_args = [v for v in extra_args if not v.startswith("/")]
+            objects = self.compiler.compile(sources,
+                                            output_dir=self.build_temp,
+                                            macros=macros,
+                                            include_dirs=include_dirs,
+                                            extra_postargs=extra_args,
+                                            debug=self.debug)
+
+            # Now "link" the object files together into a static library.
+            # (On Unix at least, this isn't really linking -- it just
+            # builds an archive.  Whatever.)
+            self.compiler.create_static_lib(objects, lib_name,
+                                            output_dir=self.build_clib,
+                                            debug=self.debug)
 
 
 class custom_build_ext(build_ext):
@@ -32,8 +75,11 @@ makeotflib = Extension(
         pjoin(MAKEOTF_SOURCE, "cbpriv.c"),
         pjoin(MAKEOTF_SOURCE, "fcdb.c"),
         pjoin(MAKEOTF_SOURCE, "file.c"),
-        pjoin(MAKEOTF_SOURCE, "mac", "mac.c"),
         pjoin(MAKEOTF_SOURCE, "main.c"),
+    ] + [
+        pjoin(MAKEOTF_SOURCE, "Win32", "Win.c"),
+    ] if os.name == "nt" else [
+        pjoin(MAKEOTF_SOURCE, "mac", "mac.c"),
     ],
     define_macros=[("MAKEOTFLIB_EXPORTS", "1")],
     depends=(
@@ -71,6 +117,7 @@ setup(
     ext_modules=[makeotflib],
     cmdclass={
         'build_ext': custom_build_ext,
+        'build_clib': custom_build_clib,
         },
     libraries=[
         ('ctutil', {
@@ -129,6 +176,8 @@ setup(
                 pjoin(PUBLIC_LIB, 'api'),
                 pjoin(PUBLIC_LIB, 'resource'),
                 ],
+            # disable Microsoft language extensions that are not compatible with ANSI C
+            'extra_args': ['/Za'] if os.name == 'nt' else [],
             }),
         ('pstoken', {
             'macros': [
