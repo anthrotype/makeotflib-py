@@ -5,6 +5,7 @@ import os
 from os.path import join as pjoin
 from glob import glob
 from distutils import log
+from distutils.errors import DistutilsSetupError
 
 
 CURR_DIR = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
