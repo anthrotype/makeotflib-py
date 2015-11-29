@@ -77,11 +77,11 @@ makeotflib = Extension(
         pjoin(MAKEOTF_SOURCE, "fcdb.c"),
         pjoin(MAKEOTF_SOURCE, "file.c"),
         pjoin(MAKEOTF_SOURCE, "main.c"),
-    ] + [
+    ] + ([
         pjoin(MAKEOTF_SOURCE, "Win32", "Win.c"),
     ] if os.name == "nt" else [
         pjoin(MAKEOTF_SOURCE, "mac", "mac.c"),
-    ],
+    ]),
     define_macros=[("MAKEOTFLIB_EXPORTS", "1")],
     depends=(
         [pjoin(MAKEOTF_SOURCE, "makeotflib.h")] +
