@@ -265,19 +265,20 @@ makeotflib = Extension(
     )
 
 
-setup(
-    name='makeotflib',
-    version="0.1",
-    url="https://www.daltonmaag.com/",
-    description="Python bindings for makeotf",
-    author="Cosimo Lupo",
-    author_email="cosimo.lupo@daltonmaag.com",
-    license="Apache 2.0",
-    packages=['makeotflib'],
-    ext_modules=[makeotflib],
-    cmdclass={
-        'build_ext': custom_build_ext,
-        'build_clib': custom_build_clib,
-        },
-    libraries=LIBRARIES,
-)
+if __name__ == "__main__":
+    setup(
+        name='makeotflib',
+        version="0.1",
+        url="https://www.daltonmaag.com/",
+        description="Python bindings for makeotf",
+        author="Cosimo Lupo",
+        author_email="cosimo.lupo@daltonmaag.com",
+        license="Apache 2.0",
+        packages=['makeotflib'],
+        ext_modules=[makeotflib],
+        cmdclass={
+            'build_ext': custom_build_ext,
+            'build_clib': custom_build_clib,
+            },
+        libraries=LIBRARIES,
+    )
