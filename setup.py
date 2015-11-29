@@ -25,6 +25,12 @@ LIBRARIES = [
         'include_dirs': [
             os.path.join(PUBLIC_LIB, 'api'),
             ],
+        'macros': {
+            'msvc': [
+                ('CTL_CDECL', '__cdecl'),
+                ('_CRT_SECURE_NO_DEPRECATE', '1'),
+                ],
+            },
         }),
     ('dynarr', {
         'sources': [
@@ -33,11 +39,23 @@ LIBRARIES = [
         'include_dirs': [
             os.path.join(PUBLIC_LIB, 'api'),
             ],
+        'macros': {
+            'msvc': [
+                ('CTL_CDECL', '__cdecl'),
+                ('_CRT_SECURE_NO_DEPRECATE', '1'),
+                ],
+            },
         }),
     ('hotconv', {
-        'macros': [
-            ('HOT_FEAT_SUPPORT', '1')
-            ],
+        'macros': {
+            'any': [
+                ('HOT_FEAT_SUPPORT', '1'),
+                ],
+            'msvc': [
+                ('CDECL', '__cdecl'),
+                ('_CRT_SECURE_NO_DEPRECATE', '1'),
+                ],
+            },
         'sources': [
             os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'anon.c'),
             os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'BASE.c'),
@@ -80,10 +98,16 @@ LIBRARIES = [
             }
         }),
     ('pstoken', {
-        'macros': [
-            ('CFF_DEBUG', '1'),
-            ('CFF_T13_SUPPORT', '0'),
-        ],
+        'macros': {
+            'any': [
+                ('CFF_DEBUG', '1'),
+                ('CFF_T13_SUPPORT', '0'),
+                ],
+            'msvc': [
+                ('CDECL', '__cdecl'),
+                ('_CRT_SECURE_NO_DEPRECATE', '1'),
+                ],
+            },
         'sources': [
             os.path.join(MAKEOTF_LIB, 'source', 'pstoken', 'pstoken.c'),
             ],
@@ -94,13 +118,19 @@ LIBRARIES = [
             ],
         }),
     ('typecomp', {
-        'macros': [
-            ('TC_HINT_CHECK', '1'),
-            ('TC_T13_SUPPORT', '0'),
-            ('TC_EURO_SUPPORT', '1'),
-            ('TC_SUBR_SUPPORT', '1'),
-            ('TC_DEBUG', '1'),
-        ],
+        'macros': {
+            'any': [
+                ('TC_HINT_CHECK', '1'),
+                ('TC_T13_SUPPORT', '0'),
+                ('TC_EURO_SUPPORT', '1'),
+                ('TC_SUBR_SUPPORT', '1'),
+                ('TC_DEBUG', '1'),
+                ],
+            'msvc': [
+                ('CDECL', '__cdecl'),
+                ('_CRT_SECURE_NO_DEPRECATE', '1'),
+                ],
+            },
         'sources': [
             os.path.join(MAKEOTF_LIB, 'source', 'typecomp', 'charset.c'),
             os.path.join(MAKEOTF_LIB, 'source', 'typecomp', 'cs.c'),
@@ -122,9 +152,15 @@ LIBRARIES = [
             ],
         }),
     ('cffread', {
-        'macros': [
-            ('CFF_T13_SUPPORT', '0'),
-        ],
+        'macros': {
+            'any': [
+                ('CFF_T13_SUPPORT', '0'),
+                ],
+            'msvc': [
+                ('CDECL', '__cdecl'),
+                ('_CRT_SECURE_NO_DEPRECATE', '1'),
+                ],
+            },
         'sources': [
             os.path.join(MAKEOTF_LIB, 'source', 'cffread', 'cffread.c'),
             ],
@@ -139,8 +175,8 @@ LIBRARIES = [
 
 
 class custom_build_clib(build_clib):
-    """ Custom build_clib command which allows to pass a dict of 'extra_args'
-    when compiling C libraries: {compiler_type: [list of str]}
+    """ Custom build_clib command which allows to pass compiler-specific
+    'macros' and 'extra_args' when compiling C libraries.
     """
 
     def build_libraries(self, libraries):
@@ -155,14 +191,18 @@ class custom_build_clib(build_clib):
 
             log.info("building '%s' library", lib_name)
 
-            # First, compile the source code to object files in the library
-            # directory.  (This should probably change to putting object
-            # files in a temporary build directory.)
-            macros = build_info.get('macros')
+            compiler_type = self.compiler.compiler_type
+            # get list of preprocessor definitions from 'macros' dict
+            macros_dict = build_info.get('macros', {})
+            macros = macros_dict.get('any', [])
+            macros.extend(macros_dict.get(compiler_type, []))
+
             include_dirs = build_info.get('include_dirs')
-            # get list of compiler-specific arguments from 'extra_args' dict
+            # get list of compiler extra arguments from 'extra_args' dict
             extra_args_dict = build_info.get('extra_args', {})
-            extra_args = extra_args_dict.get(self.compiler.compiler_type)
+            extra_args = extra_args_dict.get('any', [])
+            extra_args.extend(extra_args_dict.get(compiler_type, []))
+            # compile the source code to object files
             objects = self.compiler.compile(sources,
                                             output_dir=self.build_temp,
                                             macros=macros,
