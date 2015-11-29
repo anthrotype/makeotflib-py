@@ -5,7 +5,22 @@ import os
 from os.path import join as pjoin
 from glob import glob
 from distutils import log
-from distutils.errors import DistutilsSetupError
+from distutils.errors import DistutilsSetupError, DistutilsPlatformError
+import platform
+
+
+# when compiling for Windows Python 2.7, force distutils to use Visual Studio
+# 2010 instead of 2008
+if platform.system() == 'Windows':
+    try:
+        import distutils.msvc9compiler
+    except DistutilsPlatformError:
+        pass  # importing msvc9compiler raises when running under MinGW
+    else:
+        orig_find_vcvarsall = distutils.msvc9compiler.find_vcvarsall
+        def patched_find_vcvarsall(version):
+            return orig_find_vcvarsall(version if version != 9.0 else 10.0)
+        distutils.msvc9compiler.find_vcvarsall = patched_find_vcvarsall
 
 
 CURR_DIR = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
