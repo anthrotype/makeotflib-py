@@ -2,10 +2,23 @@ from setuptools import setup, Extension
 from distutils.command.build_ext import build_ext
 from distutils.command.build_clib import build_clib
 import os
+import sys
 from os.path import join as pjoin
 from glob import glob
 from distutils import log
 from distutils.errors import DistutilsSetupError
+import platform
+
+
+requirements = []
+if platform.python_implementation() == "PyPy":
+    if sys.pypy_version_info < (2, 6):
+        raise RuntimeError(
+            "makeotflib is not compatible with PyPy < 2.6. Please "
+            "upgrade PyPy to use this library."
+        )
+else:
+    requirements.append("cffi>=1.1.0")
 
 
 CURR_DIR = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
@@ -227,6 +240,42 @@ class custom_build_ext(build_ext):
         return filenames
 
 
+def keywords_require_cffi(argv):
+    """ This setup.py script uses the setuptools 'setup_requires' feature
+    to ensures the cffi package is installed before compiling the extension
+    module.
+    This function parses the command line arguments to setup.py, and if none
+    of these need the cffi module, then it returns an empty dictionary.
+    """
+    setup_requires_arguments = (
+        'build',
+        'build_ext',
+        'build_clib',
+        'install',
+        'install_lib',
+        'install_headers',
+        'bdist',
+        'bdist_dumb',
+        'bdist_rpm',
+        'bdist_wininst',
+        'upload',
+        'develop',
+        'test',
+        'bdist_wheel',
+        'bdist_egg',
+    )
+
+    if any(argv[i] in setup_requires_arguments for i in range(1, len(argv))):
+        return {
+            "setup_requires": requirements,
+            "cffi_modules": [
+                "build_makeotflib.py:ffi",
+            ]
+        }
+    else:
+        return {}
+
+
 makeotflib = Extension(
     "makeotflib._makeotflib",
     sources=[
@@ -275,10 +324,12 @@ if __name__ == "__main__":
         author_email="cosimo.lupo@daltonmaag.com",
         license="Apache 2.0",
         packages=['makeotflib'],
-        ext_modules=[makeotflib],
         cmdclass={
             'build_ext': custom_build_ext,
             'build_clib': custom_build_clib,
             },
         libraries=LIBRARIES,
+        zip_safe=False,
+        install_requires=requirements,
+        **keywords_require_cffi(sys.argv)
     )
