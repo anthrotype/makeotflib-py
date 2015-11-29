@@ -17,10 +17,130 @@ MAKEOTF_ROOT = pjoin('afdko', 'FDK', 'Tools', 'Programs', 'makeotf')
 MAKEOTF_LIB = pjoin(MAKEOTF_ROOT, 'makeotf_lib')
 MAKEOTF_SOURCE = pjoin(MAKEOTF_ROOT, 'source')
 
+LIBRARIES = [
+    ('ctutil', {
+        'sources': [
+            os.path.join(PUBLIC_LIB, 'source', 'ctutil', 'ctutil.c'),
+            ],
+        'include_dirs': [
+            os.path.join(PUBLIC_LIB, 'api'),
+            ],
+        }),
+    ('dynarr', {
+        'sources': [
+            os.path.join(PUBLIC_LIB, 'source', 'dynarr', 'dynarr.c'),
+            ],
+        'include_dirs': [
+            os.path.join(PUBLIC_LIB, 'api'),
+            ],
+        }),
+    ('hotconv', {
+        'macros': [
+            ('HOT_FEAT_SUPPORT', '1')
+            ],
+        'sources': [
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'anon.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'BASE.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'CFF_.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'cmap.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'featerr.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'featgram.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'featscan.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'fvar.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'GDEF.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'GPOS.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'GSUB.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'head.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'hhea.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'hmtx.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'hot.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'map.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'maxp.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'MMFX.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'MMSD.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'name.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'OS_2.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'otl.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'post.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'sfnt.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'vhea.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'vmtx.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'hotconv', 'VORG.c'),
+            ],
+        'include_dirs': [
+            os.path.join(MAKEOTF_LIB, 'api'),
+            os.path.join(MAKEOTF_LIB, 'resource'),
+            os.path.join(MAKEOTF_LIB, 'build', 'hotpccts', 'pccts', 'h'),
+            os.path.join(PUBLIC_LIB, 'api'),
+            os.path.join(PUBLIC_LIB, 'resource'),
+            ],
+        'extra_args': {
+            # disable Microsoft language extensions incompatible with ANSI C
+            'msvc': ['/Za'],
+            }
+        }),
+    ('pstoken', {
+        'macros': [
+            ('CFF_DEBUG', '1'),
+            ('CFF_T13_SUPPORT', '0'),
+        ],
+        'sources': [
+            os.path.join(MAKEOTF_LIB, 'source', 'pstoken', 'pstoken.c'),
+            ],
+        'include_dirs': [
+            os.path.join(MAKEOTF_LIB, 'api'),
+            os.path.join(PUBLIC_LIB, 'api'),
+            os.path.join(PUBLIC_LIB, 'resource'),
+            ],
+        }),
+    ('typecomp', {
+        'macros': [
+            ('TC_HINT_CHECK', '1'),
+            ('TC_T13_SUPPORT', '0'),
+            ('TC_EURO_SUPPORT', '1'),
+            ('TC_SUBR_SUPPORT', '1'),
+            ('TC_DEBUG', '1'),
+        ],
+        'sources': [
+            os.path.join(MAKEOTF_LIB, 'source', 'typecomp', 'charset.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'typecomp', 'cs.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'typecomp', 'dict.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'typecomp', 'encoding.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'typecomp', 'fdselect.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'typecomp', 'parse.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'typecomp', 'recode.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'typecomp', 'sindex.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'typecomp', 'subr.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'typecomp', 't13.c'),
+            os.path.join(MAKEOTF_LIB, 'source', 'typecomp', 'tc.c'),
+            ],
+        'include_dirs': [
+            os.path.join(MAKEOTF_LIB, 'api'),
+            os.path.join(MAKEOTF_LIB, 'resource'),
+            os.path.join(PUBLIC_LIB, 'api'),
+            os.path.join(PUBLIC_LIB, 'resource'),
+            ],
+        }),
+    ('cffread', {
+        'macros': [
+            ('CFF_T13_SUPPORT', '0'),
+        ],
+        'sources': [
+            os.path.join(MAKEOTF_LIB, 'source', 'cffread', 'cffread.c'),
+            ],
+        'include_dirs': [
+            os.path.join(MAKEOTF_LIB, 'api'),
+            os.path.join(MAKEOTF_LIB, 'resource'),
+            os.path.join(PUBLIC_LIB, 'api'),
+            os.path.join(PUBLIC_LIB, 'resource'),
+            ],
+        }),
+    ]
+
 
 class custom_build_clib(build_clib):
-    """ Custom build_clib command which allows to pass a list of 'extra_args'
-    when compiling C libraries.
+    """ Custom build_clib command which allows to pass a dict of 'extra_args'
+    when compiling C libraries: {compiler_type: [list of str]}
     """
 
     def build_libraries(self, libraries):
@@ -40,10 +160,9 @@ class custom_build_clib(build_clib):
             # files in a temporary build directory.)
             macros = build_info.get('macros')
             include_dirs = build_info.get('include_dirs')
-            extra_args = build_info.get('extra_args')
-            # prune extra arguments if starting with "/" unless compiler is 'msvc'
-            if extra_args and self.compiler.compiler_type != "msvc":
-                extra_args = [v for v in extra_args if not v.startswith("/")]
+            # get list of compiler-specific arguments from 'extra_args' dict
+            extra_args_dict = build_info.get('extra_args', {})
+            extra_args = extra_args_dict.get(self.compiler.compiler_type)
             objects = self.compiler.compile(sources,
                                             output_dir=self.build_temp,
                                             macros=macros,
@@ -120,121 +239,5 @@ setup(
         'build_ext': custom_build_ext,
         'build_clib': custom_build_clib,
         },
-    libraries=[
-        ('ctutil', {
-            'sources': [
-                pjoin(PUBLIC_LIB, 'source', 'ctutil', 'ctutil.c'),
-                ],
-            'include_dirs': [
-                pjoin(PUBLIC_LIB, 'api'),
-                ],
-            }),
-        ('dynarr', {
-            'sources': [
-                pjoin(PUBLIC_LIB, 'source', 'dynarr', 'dynarr.c'),
-                ],
-            'include_dirs': [
-                pjoin(PUBLIC_LIB, 'api'),
-                ],
-            }),
-        ('hotconv', {
-            'macros': [
-                ('HOT_FEAT_SUPPORT', '1')
-                ],
-            'sources': [
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'anon.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'BASE.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'CFF_.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'cmap.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'featerr.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'featgram.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'featscan.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'fvar.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'GDEF.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'GPOS.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'GSUB.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'head.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'hhea.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'hmtx.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'hot.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'map.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'maxp.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'MMFX.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'MMSD.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'name.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'OS_2.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'otl.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'post.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'sfnt.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'vhea.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'vmtx.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'hotconv', 'VORG.c'),
-                ],
-            'include_dirs': [
-                pjoin(MAKEOTF_LIB, 'api'),
-                pjoin(MAKEOTF_LIB, 'resource'),
-                pjoin(MAKEOTF_LIB, 'build', 'hotpccts', 'pccts', 'h'),
-                pjoin(PUBLIC_LIB, 'api'),
-                pjoin(PUBLIC_LIB, 'resource'),
-                ],
-            # disable Microsoft language extensions that are not compatible with ANSI C
-            'extra_args': ['/Za'] if os.name == 'nt' else [],
-            }),
-        ('pstoken', {
-            'macros': [
-                ('CFF_DEBUG', '1'),
-                ('CFF_T13_SUPPORT', '0'),
-            ],
-            'sources': [
-                pjoin(MAKEOTF_LIB, 'source', 'pstoken', 'pstoken.c'),
-                ],
-            'include_dirs': [
-                pjoin(MAKEOTF_LIB, 'api'),
-                pjoin(PUBLIC_LIB, 'api'),
-                pjoin(PUBLIC_LIB, 'resource'),
-                ],
-            }),
-        ('typecomp', {
-            'macros': [
-                ('TC_HINT_CHECK', '1'),
-                ('TC_T13_SUPPORT', '0'),
-                ('TC_EURO_SUPPORT', '1'),
-                ('TC_SUBR_SUPPORT', '1'),
-                ('TC_DEBUG', '1'),
-            ],
-            'sources': [
-                pjoin(MAKEOTF_LIB, 'source', 'typecomp', 'charset.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'typecomp', 'cs.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'typecomp', 'dict.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'typecomp', 'encoding.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'typecomp', 'fdselect.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'typecomp', 'parse.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'typecomp', 'recode.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'typecomp', 'sindex.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'typecomp', 'subr.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'typecomp', 't13.c'),
-                pjoin(MAKEOTF_LIB, 'source', 'typecomp', 'tc.c'),
-                ],
-            'include_dirs': [
-                pjoin(MAKEOTF_LIB, 'api'),
-                pjoin(MAKEOTF_LIB, 'resource'),
-                pjoin(PUBLIC_LIB, 'api'),
-                pjoin(PUBLIC_LIB, 'resource'),
-                ],
-            }),
-        ('cffread', {
-            'macros': [
-                ('CFF_T13_SUPPORT', '0'),
-            ],
-            'sources': [
-                pjoin(MAKEOTF_LIB, 'source', 'cffread', 'cffread.c'),
-                ],
-            'include_dirs': [
-                pjoin(MAKEOTF_LIB, 'api'),
-                pjoin(MAKEOTF_LIB, 'resource'),
-                pjoin(PUBLIC_LIB, 'api'),
-                pjoin(PUBLIC_LIB, 'resource'),
-                ],
-            }),
-        ]
+    libraries=LIBRARIES,
 )
