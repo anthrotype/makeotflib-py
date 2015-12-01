@@ -280,5 +280,10 @@ if __name__ == "__main__":
             'build_ext': custom_build_ext,
             'build_clib': custom_build_clib,
             },
+        entry_points={
+            'console_scripts': [
+                'pymakeotf=makeotflib:main'
+                ],
+            },
         libraries=LIBRARIES,
     )
