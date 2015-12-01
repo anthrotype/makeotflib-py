@@ -7,6 +7,8 @@
 #define PyInt_AsLong PyLong_AsLong
 #endif
 
+int main(int argc, char *argv[]);
+
 static PyObject *MakeOTFLibError;
 
 static PyObject* makeotflib_main(PyObject *self, PyObject *args) {
@@ -23,7 +25,7 @@ static PyObject* makeotflib_main(PyObject *self, PyObject *args) {
     list_len = PyList_Size(list_obj);
     argc += list_len;
 
-    const char **argv = malloc(argc * sizeof(char*));
+    char **argv = malloc(argc * sizeof(char*));
     argv[0] = "makeotfexe";
 
     for (i = 0; i < list_len; i++) {
