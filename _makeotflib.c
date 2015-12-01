@@ -9,23 +9,55 @@
 
 static PyObject *MakeOTFLibError;
 
-static PyObject* makeotflib_test(PyObject *self, PyObject *args) {
-  char output[] = "hello\0";
-  return PyBytes_FromStringAndSize((char*)output, 6);
+static PyObject* makeotflib_main(PyObject *self, PyObject *args) {
+    PyObject *list_obj;
+    PyObject *bytes_obj;
+    size_t list_len = 0;
+    int i;
+    int argc = 1;
+    int retcode = -1;
+
+    if (!PyArg_ParseTuple(args, "O!", &PyList_Type, &list_obj))
+        return NULL;
+
+    list_len = PyList_Size(list_obj);
+    argc += list_len;
+
+    const char **argv = malloc(argc * sizeof(char*));
+    argv[0] = "makeotfexe";
+
+    for (i = 0; i < list_len; i++) {
+        char *arg_str = NULL;
+        size_t arg_len = 0;
+        bytes_obj = PyList_GetItem(list_obj, i);
+        arg_str = PyBytes_AsString(bytes_obj);
+        arg_len = PyBytes_Size(bytes_obj) + 1;
+        argv[i+1] = malloc(arg_len * sizeof(char));
+        strncpy(argv[i+1], arg_str, arg_len);
+    }
+
+    retcode = main(argc, argv);
+
+    for (i = 1; i < argc; i++) {
+        free(argv[i]);
+    }
+    free(argv);
+
+    return PyLong_FromLong(retcode);
 }
 
-PyDoc_STRVAR(test__doc__,
-"test() -- return 'hello'.");
+PyDoc_STRVAR(main__doc__,
+"main() -- Run 'makeotfexe'.");
 
 static PyMethodDef makeotflib_methods[] = {
-  {"test",   makeotflib_test,   METH_VARARGS, test__doc__},
-  {NULL, NULL, 0, NULL}
+    {"main",   makeotflib_main,   METH_VARARGS, main__doc__},
+    {NULL, NULL, 0, NULL}
 };
 
 PyDoc_STRVAR(makeotflib__doc__,
-"Lorem ipsum.\n"
+"Python wrapper for Adobe FDK's makeotflib.\n"
 "\n"
-"test() -- return 'hello'.\n");
+"main() -- Run 'makeotfexe'.\n");
 
 #if PY_MAJOR_VERSION >= 3
 #define INIT_MAKEOTFLIB   PyInit__makeotflib
@@ -33,14 +65,14 @@ PyDoc_STRVAR(makeotflib__doc__,
 #define RETURN_MAKEOTFLIB return m
 
 static struct PyModuleDef _makeotflib_module = {
-  PyModuleDef_HEAD_INIT,
-  "_makeotflib",
-  makeotflib__doc__,
-  0,
-  makeotflib_methods,
-  NULL,
-  NULL,
-  NULL
+    PyModuleDef_HEAD_INIT,
+    "_makeotflib",
+    makeotflib__doc__,
+    0,
+    makeotflib_methods,
+    NULL,
+    NULL,
+    NULL
 };
 #else
 #define INIT_MAKEOTFLIB   init_makeotflib
@@ -49,14 +81,14 @@ static struct PyModuleDef _makeotflib_module = {
 #endif
 
 PyMODINIT_FUNC INIT_MAKEOTFLIB(void) {
-  PyObject *m = CREATE_MAKEOTFLIB;
+    PyObject *m = CREATE_MAKEOTFLIB;
 
-  MakeOTFLibError = PyErr_NewException((char*) "makeotflib.error", NULL, NULL);
+    MakeOTFLibError = PyErr_NewException((char*) "makeotflib.error", NULL, NULL);
 
-  if (MakeOTFLibError != NULL) {
-    Py_INCREF(MakeOTFLibError);
-    PyModule_AddObject(m, "error", MakeOTFLibError);
-  }
+    if (MakeOTFLibError != NULL) {
+        Py_INCREF(MakeOTFLibError);
+        PyModule_AddObject(m, "error", MakeOTFLibError);
+    }
 
-  RETURN_MAKEOTFLIB;
+    RETURN_MAKEOTFLIB;
 }
