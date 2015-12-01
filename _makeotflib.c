@@ -14,7 +14,7 @@ static PyObject *MakeOTFLibError;
 static PyObject* makeotflib_main(PyObject *self, PyObject *args) {
     PyObject *list_obj;
     PyObject *bytes_obj;
-    size_t list_len = 0;
+    int list_len = 0;
     int i;
     int argc = 1;
     int retcode = -1;
@@ -31,7 +31,7 @@ static PyObject* makeotflib_main(PyObject *self, PyObject *args) {
 
     for (i = 0; i < list_len; i++) {
         char *arg_str = NULL;
-        size_t arg_len = 0;
+        int arg_len = 0;
         bytes_obj = PyList_GetItem(list_obj, i);
         arg_str = PyBytes_AsString(bytes_obj);
         arg_len = PyBytes_Size(bytes_obj) + 1;
