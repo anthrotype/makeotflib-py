@@ -18,6 +18,7 @@ static PyObject* makeotflib_main(PyObject *self, PyObject *args) {
     int i;
     int argc = 1;
     int retcode = -1;
+    char **argv = NULL;
 
     if (!PyArg_ParseTuple(args, "O!", &PyList_Type, &list_obj))
         return NULL;
@@ -25,7 +26,7 @@ static PyObject* makeotflib_main(PyObject *self, PyObject *args) {
     list_len = PyList_Size(list_obj);
     argc += list_len;
 
-    char **argv = malloc(argc * sizeof(char*));
+    argv = (char **)malloc(argc * sizeof(char *));
     argv[0] = "makeotfexe";
 
     for (i = 0; i < list_len; i++) {
