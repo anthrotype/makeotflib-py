@@ -35,7 +35,7 @@ static PyObject* makeotflib_main(PyObject *self, PyObject *args) {
         bytes_obj = PyList_GetItem(list_obj, i);
         arg_str = PyBytes_AsString(bytes_obj);
         arg_len = PyBytes_Size(bytes_obj) + 1;
-        argv[i+1] = malloc(arg_len * sizeof(char));
+        argv[i+1] = (char *)malloc(arg_len * sizeof(char));
         strncpy(argv[i+1], arg_str, arg_len);
     }
 
